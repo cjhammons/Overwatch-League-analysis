@@ -3,21 +3,6 @@ library("jsonlite")
 
 base <- "https://api.overwatchleague.com/"
 
-#' Runs all import functions and stores them in globally available DataFrames.
-#' 
-#' The following DataFrames are created:
-#' -teams_df
-#' -players_df
-#' -matches_df
-#' -games_df
-#' 
-import_all <- function() {
-  teams_df = import_teams()
-  players_df = import_players()
-  matches_df = import_matches()
-  games_df = import_games()
-}
-
 #' Gets all teams currently in the Overwatch league
 #' 
 #' @return A DataFrame containing the teams
