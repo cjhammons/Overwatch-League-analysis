@@ -2,15 +2,15 @@ library(sqldf)
 
 #' Initializes a fresh table of all teams with starting Elo
 #' 
-#' @return DataFrame of the teams with a starting Elo rating of 1000 for all of them
-init_elo_table <- function(){
+#' @param teams_df DataFrame of the raw team data. If not provided, calls import_teams() @see import_teams()
+#' @return Trimmed version of the raw teams dataframe containing only the following columns: 
+#'    wins, losses, map_wins, map_losses, map_diff, and elo. 
+init_elo_table <- function(teams_df=import_teams()){
   
   elo_rankings_df <- data.frame()
   for (row in 1:nrow(teams_df)) {
     newRow <- data.frame(id=teams_df[row,"id"], 
-                         handle=teams_df[row,"handle"],
                          name=teams_df[row,"name"],
-                         abbreviatedName=teams_df[row,"abbreviatedName"],
                          wins=0,
                          losses=0,
                          map_wins=0,
@@ -34,7 +34,6 @@ init_elo_table <- function(){
 #' @examples elo_calculatioin(2400, 2000)
 #' @examples elo_calculatioin(2000, 2400)
 #' @examples elo_calculatioin(2400, 2000, 60)
-#'  
 elo_calculation <- function(winnerElo, loserElo, k=32) {
   
   r1 <- 10^(winnerElo/400)
@@ -50,14 +49,12 @@ elo_calculation <- function(winnerElo, loserElo, k=32) {
   return(return_values)
 }
 
-#'
-#'
-#'
-#'
-#'
-#'
-#'
-#'
+#' Processes a single match and adjusts the league standings
+#' 
+#' @param match Match represented by a single row DataFrame extracted from the Matches DataFrame
+#' @param elo_table League table containing Elo ratings that will be updated
+#' @param K the k-factor to be used in the elo calculations.
+#' @return League table updated with wins, losses, map wins, map losses, map diff, and Elo
 process_match <- function(match, elo_table, k=32) {
 
   #Extract the team IDs and assign them appropiately

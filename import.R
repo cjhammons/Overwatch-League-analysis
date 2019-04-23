@@ -1,5 +1,5 @@
-require("httr")
-require("jsonlite")
+library("httr")
+library("jsonlite")
 
 base <- "https://api.overwatchleague.com/"
 
@@ -10,6 +10,7 @@ base <- "https://api.overwatchleague.com/"
 #' -players_df
 #' -matches_df
 #' -games_df
+#' 
 import_all <- function() {
   teams_df = import_teams()
   players_df = import_players()
@@ -21,6 +22,8 @@ import_all <- function() {
 #' 
 #' @return A DataFrame containing the teams
 import_teams <- function(){
+  require("httr")
+  require("jsonlite")
   return(as.data.frame(fromJSON(content(GET(paste(base, "v2/teams", sep="")), "text"),flatten=TRUE)$data))
 }
 
@@ -28,6 +31,8 @@ import_teams <- function(){
 #' 
 #' @return A DataFrame containing the teams and their current standing
 import_ranking <- function(){
+  require("httr")
+  require("jsonlite")
   return(as.data.frame(fromJSON(content(GET(paste(base, "ranking", sep="")), "text"),flatten=TRUE)))
 }
 
@@ -35,13 +40,18 @@ import_ranking <- function(){
 #' 
 #' @return A DataFrame containing the playersa
 import_players <- function(){
+  require("httr")
+  require("jsonlite")
   return(as.data.frame(fromJSON(content(GET(paste(base, "players", sep="")), "text"),flatten=TRUE)$content))
 }
 
 #' Gets all matches (played, live, and scheduled) for the current Overwatch League season.
 #' 
+#' @param chronological Boolean indicating whether or not to sort the matches by chronological order
 #' @return A DataFrame containing the matches
 import_matches <- function(chronological=FALSE){
+  require("httr")
+  require("jsonlite")
   df <- as.data.frame(fromJSON(content(GET(paste(base, "matches", sep="")), "text"),flatten=TRUE)$content)
   if (chronological){
     return(df[order(df$actualEndDate),])
@@ -51,10 +61,11 @@ import_matches <- function(chronological=FALSE){
 
 #' Gets games (maps) played for the current Overwathch League Season
 #' 
-#' @return A DataFrame containing the maps
-import_games <- function(){
-  #there is no enpoint to get only the games, so we must get the game data from the matches endpoint
-  matches_df <- import_matches(chronological = TRUE)
+#' @param matches_df DataFrame of the matches. Since there is no endpoint for only the games a DataFrame 
+#' of Matches is required. If one isn't provided import_matches() is called. @see import_matches()    
+#' @return A DataFrame containing the games (maps)
+import_games <- function(matches_df=import_matches()){
+  
   #now iterrate through each match and extract the game data
   games_df <- data.frame()
   for (row in 1:nrow(matches_df)) {

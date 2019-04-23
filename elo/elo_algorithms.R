@@ -2,9 +2,9 @@ teams_df = import_teams()
 players_df = import_players()
 matches_df = import_matches(chronological=TRUE)
 games_df = import_games()
+elo_table <- init_elo_table(teams_df)
 
-#matches_df[with(matches_df, order(matches_df$actualEndDate))]
-elo_table <- init_elo_table()
+
 for (match in 1:nrow(matches_df)) {
   status <- matches_df[match,"status"]
   if (identical(status, "CONCLUDED")) {
