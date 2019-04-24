@@ -2,19 +2,19 @@
     "debugBreakpointsState" : {
         "breakpoints" : [
             {
-                "editor_line_number" : 84,
+                "editor_line_number" : 19,
                 "editor_state" : 1,
-                "function_name" : "process_match",
-                "function_steps" : "10",
-                "id" : 20,
+                "function_name" : "toplevel",
+                "function_steps" : "",
+                "id" : 0,
                 "is_package_breakpoint" : false,
                 "is_pending_debug_completion" : false,
-                "line_number" : 84,
-                "needs_updated_steps" : false,
+                "line_number" : 19,
+                "needs_updated_steps" : true,
                 "package_name" : "",
-                "path" : "C:/programming/owl-analysis/elo.R",
+                "path" : "C:/programming/owl-analysis/elo/elo_algorithms.R",
                 "state" : 1,
-                "type" : 0
+                "type" : 1
             }
         ]
     }

@@ -3,9 +3,10 @@ library(sqldf)
 #' Initializes a fresh table of all teams with starting Elo
 #' 
 #' @param teams_df DataFrame of the raw team data. If not provided, calls import_teams() @see import_teams()
+#' @param starting_elo Elo value that all teams are initialized to.
 #' @return Trimmed version of the raw teams dataframe containing only the following columns: 
 #'    wins, losses, map_wins, map_losses, map_diff, and elo. 
-init_elo_table <- function(teams_df=import_teams()){
+init_elo_table <- function(teams_df=import_teams(), starting_elo=1000){
   
   elo_rankings_df <- data.frame()
   for (row in 1:nrow(teams_df)) {
@@ -16,12 +17,25 @@ init_elo_table <- function(teams_df=import_teams()){
                          map_wins=0,
                          map_losses=0,
                          map_diff=0,
-                         elo=1000)
+                         elo=starting_elo)
     
     elo_rankings_df <- rbind(elo_rankings_df, newRow)
   }
   return(elo_rankings_df)
 }
+
+#'
+#'
+#'
+#'
+#'
+init_elo_history(elo_table, starting_elo=1000) {
+  history <- data.frame()
+  for (row in nrow(elo_table)) {
+    
+  }
+}
+
 #' Performs a standard elo calculation.
 #' See \url{https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/}
 #' for information on the math used.
@@ -85,7 +99,7 @@ process_match <- function(match, elo_table, k=32) {
 
   winnerElo <- subset(elo_table, id==winnerId)$elo
   loserElo <- subset(elo_table, id==loserId)$elo
-  new_elos <- elo_calculation(winnerElo = winnerElo, loserElo = loserElo)
+  new_elos <- elo_calculation(winnerElo = winnerElo, loserElo = loserElo, k=k)
   
   #Update each team's entry in the table
   
@@ -100,6 +114,60 @@ process_match <- function(match, elo_table, k=32) {
   elo_table[which(elo_table$id == loserId),]$map_losses <- elo_table[which(elo_table$id == loserId),]$map_losses + winner_score
   elo_table[which(elo_table$id == loserId),]$map_diff <- elo_table[which(elo_table$id == loserId),]$map_diff + loser_map_delta
   elo_table[which(elo_table$id == loserId),]$elo <- elo_table[which(elo_table$id == loserId),]$map_wins + new_elos['loser']
+  
+  return(elo_table)
+}
+
+
+process_matches <- function(elo_table=init_elo_table(), matches_df=import_matches(), stage=-1, playoffs=TRUE){
+  
+  for (match in 1:nrow(matches_df)) {
+    status <- matches_df[match,"status"]
+    if (identical(status, "CONCLUDED")) {
+      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
+    }
+  }
+  
+  if (stage > 0) {
+    for (match in 1:nrow(matches_df)) {
+      status <- matches_df[match,"status"]
+      stage <- matches_df[match, "bracket.stage.tournament.series.id"]
+      if (identical(status, "CONCLUDED") & identical(stage, stage_)) {
+        elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
+      }
+    }
+  }
+  
+  if (!playoffs) {
+    for (match in 1:nrow(matches_df)) {
+      status <- matches_df[match,"status"]
+      if (identical(status, "CONCLUDED")) {
+        elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
+      }
+    }
+  }
+  
+  return(elo_table)
+}
+
+process_matches_stage <- function(elo_table=init_elo_table(), matches_df=import_matches(), stage=-1){
+  for (match in 1:nrow(matches_df)) {
+    status <- matches_df[match,"status"]
+    stage <- matches_df[match, "bracket.stage.tournament.series.id"]
+    if (identical(status, "CONCLUDED") & identical(stage, stage_)) {
+      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
+    }
+  }
+  return(elo_table)
+}
+
+process_matches_no_playoffs <- function(elo_table=init_elo_table(), matches_df=import_matches()){
+  for (match in 1:nrow(matches_df)) {
+    status <- matches_df[match,"status"]
+    if (identical(status, "CONCLUDED")) {
+      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
+    }
+  }
   
   return(elo_table)
 }
