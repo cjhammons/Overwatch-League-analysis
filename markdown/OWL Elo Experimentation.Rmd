@@ -5,13 +5,17 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
 source('C:/programming/owl-analysis/import.R')
 source('C:/programming/owl-analysis/elo/elo_util.R')
 ```
 
 
-```{r, include=FALSE}
+```{r warning=FALSE, include=FALSE}
 teams_df = import_teams()
 players_df = import_players()
 matches_df = import_matches(chronological=TRUE)
@@ -25,4 +29,8 @@ for (match in 1:nrow(matches_df)) {
   }
 }
 ```
+
+
+
+
 

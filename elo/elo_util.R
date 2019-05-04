@@ -28,8 +28,8 @@ init_elo_table <- function(teams_df=import_teams(), starting_elo=1000){
 #'
 #'
 #'
-#'
-init_elo_history(elo_table, starting_elo=1000) {
+#' 
+init_elo_history <- function(elo_table, starting_elo=1000) {
   history <- data.frame()
   for (row in nrow(elo_table)) {
     
@@ -70,7 +70,7 @@ elo_calculation <- function(winnerElo, loserElo, k=32) {
 #' @param K the k-factor to be used in the elo calculations.
 #' @return League table updated with wins, losses, map wins, map losses, map diff, and Elo
 process_match <- function(match, elo_table, k=32) {
-
+  
   #Extract the team IDs and assign them appropiately
   competitor_ids <- match[1,"competitors"][[1]]$id
   winnerId <- match[1,"winner.id"]
@@ -144,28 +144,6 @@ process_matches <- function(elo_table=init_elo_table(), matches_df=import_matche
       if (identical(status, "CONCLUDED")) {
         elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
       }
-    }
-  }
-  
-  return(elo_table)
-}
-
-process_matches_stage <- function(elo_table=init_elo_table(), matches_df=import_matches(), stage=-1){
-  for (match in 1:nrow(matches_df)) {
-    status <- matches_df[match,"status"]
-    stage <- matches_df[match, "bracket.stage.tournament.series.id"]
-    if (identical(status, "CONCLUDED") & identical(stage, stage_)) {
-      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
-    }
-  }
-  return(elo_table)
-}
-
-process_matches_no_playoffs <- function(elo_table=init_elo_table(), matches_df=import_matches()){
-  for (match in 1:nrow(matches_df)) {
-    status <- matches_df[match,"status"]
-    if (identical(status, "CONCLUDED")) {
-      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
     }
   }
   

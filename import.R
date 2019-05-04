@@ -27,6 +27,7 @@ import_ranking <- function(){
 import_players <- function(){
   require("httr")
   require("jsonlite")
+  require("DataFrame")
   return(as.data.frame(fromJSON(content(GET(paste(base, "players", sep="")), "text"),flatten=TRUE)$content))
 }
 
@@ -46,7 +47,7 @@ import_matches <- function(chronological=FALSE){
 
 #' Gets games (maps) played for the current Overwathch League Season
 #' 
-#' @param matches_df DataFrame of the matches. Since there is no endpoint for only the games a DataFrame 
+#' @param matches_df DataFrame containing matches. Since there is no endpoint for only the games a DataFrame 
 #' of Matches is required. If one isn't provided import_matches() is called. @see import_matches()    
 #' @return A DataFrame containing the games (maps)
 import_games <- function(matches_df=import_matches()){
@@ -62,4 +63,6 @@ import_games <- function(matches_df=import_matches()){
   }
   return(games_df)
 }
+
+
 
