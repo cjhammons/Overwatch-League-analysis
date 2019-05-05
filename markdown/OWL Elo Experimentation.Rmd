@@ -1,7 +1,9 @@
 ---
 title: "OWL Elo Experimentation"
 author: "Curtis Hammons"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,25 +14,75 @@ knitr::opts_chunk$set(
 )
 source('C:/programming/owl-analysis/import.R')
 source('C:/programming/owl-analysis/elo/elo_util.R')
-```
+source('C:/programming/owl-analysis/elo/elo_test.R')
+library("ggplot2")
+library("formattable")
 
+sign_formatter <- formatter("span", 
+                            style = x ~ style(color = ifelse(x > 0, "green", 
+                                                             ifelse(x < 0, "red", "black"))))
+sign_formatter(c(-1, 0, 1))
 
-```{r warning=FALSE, include=FALSE}
-teams_df = import_teams()
-players_df = import_players()
+#This is the API call wrapped in functions, see source code
 matches_df = import_matches(chronological=TRUE)
+teams_df = import_teams()
+#There is no API endpoint to get individual games, we we must parse the matches to extract the maps
 games_df = import_games(matches_df = matches_df)
-elo_table <- init_elo_table(teams_df, 2500)
-
-for (match in 1:nrow(matches_df)) {
-  status <- matches_df[match,"status"]
-  if (identical(status, "CONCLUDED")) {
-    elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
-  }
-}
 ```
 
 
+## Testing with a static K-factor
 
+### First test, k=32
+In chess the k-factor used is 32. So we'll start with that
+
+```{r include=FALSE}
+table_32 <- process_full_table(32, matches_df = matches_df, teams_df = teams_df)
+test_32 <- elo_test_accuracy(table_32, matches_df)
+```
+```{r}
+display(table_32)
+```
+
+### Second test, k = 16
+
+```{r warning=FALSE,include=FALSE}
+table_16 <- process_full_table(16, matches_df = matches_df, teams_df = teams_df)
+test_16 <- elo_test_accuracy(table_16, matches_df)
+```
+
+```{r}
+display(table_16)
+```
+
+### Third test, k = 64
+```{r warning=FALSE,include=FALSE}
+table_64 <- process_full_table(64, matches_df = matches_df, teams_df = teams_df)
+test_64 <- elo_test_accuracy(table_64, matches_df)
+```
+
+```{r}
+display(table_64)
+```
+
+### Fourth test, k = 128
+```{r warning=FALSE,include=FALSE}
+table_128 <- process_full_table(128, matches_df = matches_df, teams_df = teams_df)
+test_128 <- elo_test_accuracy(table_128, matches_df)
+```
+
+```{r}
+display(table_128)
+```
+
+### Fifth test, k = 500
+
+```{r warning=FALSE,include=FALSE}
+table_500 <- process_full_table(500, matches_df = matches_df, teams_df = teams_df)
+test_500 <- elo_test_accuracy(table_500, matches_df)
+```
+```{r}
+display(table_500)
+```
 
 

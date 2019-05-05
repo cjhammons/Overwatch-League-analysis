@@ -1,4 +1,5 @@
 library(sqldf)
+library("formattable")
 
 #' Initializes a fresh table of all teams with starting Elo
 #' 
@@ -12,6 +13,7 @@ init_elo_table <- function(teams_df=import_teams(), starting_elo=1000){
   for (row in 1:nrow(teams_df)) {
     newRow <- data.frame(id=teams_df[row,"id"], 
                          name=teams_df[row,"name"],
+                         name_short=teams_df[row,"abbreviatedName"],
                          wins=0,
                          losses=0,
                          map_wins=0,
@@ -24,18 +26,6 @@ init_elo_table <- function(teams_df=import_teams(), starting_elo=1000){
   return(elo_rankings_df)
 }
 
-#'
-#'
-#'
-#'
-#' 
-init_elo_history <- function(elo_table, starting_elo=1000) {
-  history <- data.frame()
-  for (row in nrow(elo_table)) {
-    
-  }
-}
-
 #' Performs a standard elo calculation.
 #' See \url{https://metinmediamath.wordpress.com/2013/11/27/how-to-calculate-the-elo-rating-including-example/}
 #' for information on the math used.
@@ -45,9 +35,6 @@ init_elo_history <- function(elo_table, starting_elo=1000) {
 #' @param k The K-factor used in the calculation (see link). Defaults to 32.
 #' 
 #' @return Returns a vector of the new winner and loser Elo values
-#' @examples elo_calculatioin(2400, 2000)
-#' @examples elo_calculatioin(2000, 2400)
-#' @examples elo_calculatioin(2400, 2000, 60)
 elo_calculation <- function(winnerElo, loserElo, k=32) {
   
   r1 <- 10^(winnerElo/400)
@@ -118,40 +105,34 @@ process_match <- function(match, elo_table, k=32) {
   return(elo_table)
 }
 
-
-process_matches <- function(elo_table=init_elo_table(), matches_df=import_matches(), stage=-1, playoffs=TRUE){
+#'Creates a table and processes all available matches
+#'
+#'@param k k-factor
+#'@param matches_df DataFrame of matches
+#'@param teams_df DataFrame of teams
+#'@return Fully processed elo table
+process_full_table <- function(k=32, matches_df=import_matches(), teams_df=import_teams()){
+  elo_table <- init_elo_table(teams_df)
   
-  for (match in 1:nrow(matches_df)) {
-    status <- matches_df[match,"status"]
+  #This loop will process all matches we imported and update our data in the elo table
+  for (row in 1:nrow(matches_df)) {
+    match <- matches_df[row,]
+    status <- match[1,"status"]
     if (identical(status, "CONCLUDED")) {
-      elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
-    }
-  }
-  
-  if (stage > 0) {
-    for (match in 1:nrow(matches_df)) {
-      status <- matches_df[match,"status"]
-      stage <- matches_df[match, "bracket.stage.tournament.series.id"]
-      if (identical(status, "CONCLUDED") & identical(stage, stage_)) {
-        elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
-      }
-    }
-  }
-  
-  if (!playoffs) {
-    for (match in 1:nrow(matches_df)) {
-      status <- matches_df[match,"status"]
-      if (identical(status, "CONCLUDED")) {
-        elo_table <- process_match(matches_df[match,], elo_table = elo_table, k=50)
-      }
+      elo_table <- process_match(match, elo_table = elo_table, k=k)
     }
   }
   
   return(elo_table)
 }
 
-
-
-
-
-
+display <- function(table){
+  ggplot(data = table) + geom_bar(mapping = aes(x = name_short, y = elo, fill = name_short), stat="identity")
+  formattable(table[order(-table$elo),], list(map_wins=FALSE, 
+                                                    id=FALSE, 
+                                                    name_short=FALSE,
+                                                    map_losses=FALSE,
+                                                    elo=color_bar("lightblue"),
+                                                    map_diff=sign_formatter
+  ))
+}
