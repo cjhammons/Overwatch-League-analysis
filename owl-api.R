@@ -64,5 +64,14 @@ import_games <- function(matches_df=import_matches()){
   return(games_df)
 }
 
+#' Gets all maps in the game
+#' 
+#' @return A DataFrame containing the maps
+import_maps <- function(coreOnly=FALSE){
+  require("httr")
+  require("jsonlite")
+  df <- as.data.frame(fromJSON(content(GET(paste(base, "maps", sep="")), "text"),flatten=TRUE))
+  return(df)
+}
 
 

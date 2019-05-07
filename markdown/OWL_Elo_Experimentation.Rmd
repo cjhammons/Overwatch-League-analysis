@@ -2,8 +2,8 @@
 title: "OWL Elo Experimentation"
 author: "Curtis Hammons"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -34,55 +34,21 @@ games_df = import_games(matches_df = matches_df)
 ## Testing with a static K-factor
 
 ### First test, k=32
-In chess the k-factor used is 32. So we'll start with that
+In chess the k-factor used is 32. So we'll start with that.
 
 ```{r include=FALSE}
-table_32 <- process_full_table(32, matches_df = matches_df, teams_df = teams_df)
-test_32 <- elo_test_accuracy(table_32, matches_df)
+table_static <- process_full_table(40, matches_df = matches_df, teams_df = teams_df)
+test_static <- elo_test_accuracy(table_static, matches_df)
 ```
 ```{r}
-display(table_32)
+display(table_static)
 ```
 
-### Second test, k = 16
-
-```{r warning=FALSE,include=FALSE}
-table_16 <- process_full_table(16, matches_df = matches_df, teams_df = teams_df)
-test_16 <- elo_test_accuracy(table_16, matches_df)
-```
-
-```{r}
-display(table_16)
-```
-
-### Third test, k = 64
-```{r warning=FALSE,include=FALSE}
-table_64 <- process_full_table(64, matches_df = matches_df, teams_df = teams_df)
-test_64 <- elo_test_accuracy(table_64, matches_df)
-```
-
-```{r}
-display(table_64)
-```
-
-### Fourth test, k = 128
-```{r warning=FALSE,include=FALSE}
-table_128 <- process_full_table(128, matches_df = matches_df, teams_df = teams_df)
-test_128 <- elo_test_accuracy(table_128, matches_df)
-```
-
-```{r}
-display(table_128)
-```
-
-### Fifth test, k = 500
-
-```{r warning=FALSE,include=FALSE}
-table_500 <- process_full_table(500, matches_df = matches_df, teams_df = teams_df)
-test_500 <- elo_test_accuracy(table_500, matches_df)
+### Now use dynamic k
+```{r include=FALSE}
+table_dynamic <- process_full_table(32, matches_df = matches_df, teams_df = teams_df, use_dynamic_k = TRUE)
+test_dynamic <- elo_test_accuracy(table_dynamic, matches_df)
 ```
 ```{r}
-display(table_500)
+display(table_dynamic)
 ```
-
-
